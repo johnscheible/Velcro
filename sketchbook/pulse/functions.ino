@@ -75,8 +75,10 @@ void getPulse() {
       rate[9] = IBI;                          // add the latest IBI to the rate array
       runningTotal += rate[9];                // add the latest IBI to runningTotal
       runningTotal /= 10;                     // average the last 10 IBI values 
-      BPM = 60000/runningTotal;               // how many beats can fit into a minute? that's BPM!
-      Serial.println(BPM);
+      BPM = 60000/runningTotal;       // how many beats can fit into a minute? that's BPM!
+      String prefix = "bpm::";
+      String msg = prefix + BPM;
+      Serial.println(msg);
       QS = true;                               // set Quantified Self flag 
       // QS FLAG IS NOT CLEARED INSIDE THIS ISR
     }                       
