@@ -32,6 +32,14 @@
         android:layout_height="48dp"
         android:text="@string/play" />
 
+    <!--
+         <Button
+        android:id="@+id/analyze_button"
+        android:layout_width="192dp"
+        android:layout_height="48dp"
+        android:text="@string/analyze" />
+    -->
+
     <LinearLayout
         android:id="@+id/status_area"
         android:layout_width="match_parent"
