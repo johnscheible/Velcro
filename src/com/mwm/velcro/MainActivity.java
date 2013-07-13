@@ -11,21 +11,25 @@ import android.database.sqlite.SQLiteException;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.mwm.velcro.MAKr.MAKErListener;
+
 public class MainActivity extends Activity {
 	@SuppressWarnings("unused")
 	private static final String TAG = "Velcro";
 
-	MediaPlayer mPlayer;
-	SQLiteDatabase db;
-	Random randGen = new Random();
+	private MediaPlayer mPlayer;
+	private SQLiteDatabase mDb;
+	private Random mRandomGenerator = new Random();
+	private MAKr mMakr;
 
-	Button playbackButton, stopButton, fastButton, slowButton;
+	private Button mPlaybackButton, mStopButton, mFastButton, mSlowButton;
 
 	final String rootDir = android.os.Environment.getExternalStorageDirectory()
 			.getAbsolutePath();
@@ -50,20 +54,27 @@ public class MainActivity extends Activity {
 				return;
 			}
 			// set playback to play
-			playbackButton.setTag(1);
-			playbackButton.setText(getResources().getString(R.string.play));
+			mPlaybackButton.setTag(1);
+			mPlaybackButton.setText(getResources().getString(R.string.play));
 		}
 	}
 
 	private void changeSong() {
-		int song_ind = randGen.nextInt(songs.get(songMode).size());
-		String filepath = musicDir
-				+ songs.get(songMode).get(song_ind).getFilename();
-		System.out.println(filepath);
-		File file = new File(filepath);
-		songUri = Uri.fromFile(file);
-		mPlayer = MediaPlayer.create(MainActivity.this, songUri);
-		playingSongMode = songMode;
+		int num_songs = songs.get(songMode).size();
+
+		if (num_songs == 0) {
+			Log.d(TAG, "No songs available");
+			return;
+		} else {
+			int song_ind = mRandomGenerator.nextInt(songs.get(songMode).size());
+			String filepath = musicDir
+					+ songs.get(songMode).get(song_ind).getFilename();
+			System.out.println(filepath);
+			File file = new File(filepath);
+			songUri = Uri.fromFile(file);
+			mPlayer = MediaPlayer.create(MainActivity.this, songUri);
+			playingSongMode = songMode;
+		}
 	}
 
 	@Override
@@ -71,15 +82,17 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		String db_fn = "/Android/data/com.mwm.velcro/files/velcro.sqlite";
+		String db_fn = "/data/data/com.mwm.velcro/velcro.sqlite";
 
 		// setup db
 		try {
-			db = SQLiteDatabase.openDatabase(rootDir + db_fn, null, 0);
+			mDb = SQLiteDatabase.openDatabase(db_fn, null, 0);
 		} catch (SQLiteException e) {
 			System.out.println(e.toString());
+			Log.d(TAG, "Failed to open song database");
 		} catch (NullPointerException e) {
 			System.out.println(e.toString() + "; " + db_fn);
+			Log.d(TAG, "Failed to open song database");
 		}
 
 		songs.add(0, new ArrayList<Song>()); // slow songs
@@ -88,41 +101,43 @@ public class MainActivity extends Activity {
 		/*
 		 * Categorize songs based on BPM. fast: BPM >= 120; slow: BPM < 120
 		 */
-		Cursor q = db.query("songs", null, null, null, null, null, null);
-		// Update number of songs loaded
-		totalSongs = q.getCount();
-		final TextView songsLoaded = (TextView) findViewById(R.id.song_count);
-		songsLoaded.setText(getResources().getString(
-				R.string.number_of_songs_loaded)
-				+ " " + totalSongs.toString());
-		// load songs into ArrayList
-		q.moveToFirst();
-		while (q.isAfterLast() == false) {
-			String fn = q.getString(0);
-			Integer bpm = q.getInt(1);
+		if (mDb != null) {
+			Cursor q = mDb.query("songs", null, null, null, null, null, null);
+			// Update number of songs loaded
+			totalSongs = q.getCount();
+			final TextView songsLoaded = (TextView) findViewById(R.id.song_count);
+			songsLoaded.setText(getResources().getString(
+					R.string.number_of_songs_loaded)
+					+ " " + totalSongs.toString());
+			// load songs into ArrayList
+			q.moveToFirst();
+			while (q.isAfterLast() == false) {
+				String fn = q.getString(0);
+				Integer bpm = q.getInt(1);
 
-			Song s = new Song(fn, bpm);
-			if (bpm >= 120) {
-				songs.get(1).add(s);
-			} else {
-				songs.get(0).add(s);
+				Song s = new Song(fn, bpm);
+				if (bpm >= 120) {
+					songs.get(1).add(s);
+				} else {
+					songs.get(0).add(s);
+				}
+
+				q.moveToNext();
 			}
-
-			q.moveToNext();
 		}
 
 		// setup interface
-		playbackButton = (Button) findViewById(R.id.playback_button);
-		stopButton = (Button) findViewById(R.id.stop_button);
-		fastButton = (Button) findViewById(R.id.fast_button);
-		slowButton = (Button) findViewById(R.id.slow_button);
-		playbackButton.setTag(1); // tag = 1 when paused
-		playbackButton.setText(getResources().getString(R.string.play));
+		mPlaybackButton = (Button) findViewById(R.id.playback_button);
+		mStopButton = (Button) findViewById(R.id.stop_button);
+		mFastButton = (Button) findViewById(R.id.fast_button);
+		mSlowButton = (Button) findViewById(R.id.slow_button);
+		mPlaybackButton.setTag(1); // tag = 1 when paused
+		mPlaybackButton.setText(getResources().getString(R.string.play));
 
 		// setup player
 		changeSong();
 
-		playbackButton.setOnClickListener(new OnClickListener() {
+		mPlaybackButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				final int paused = (Integer) v.getTag();
 				try {
@@ -133,25 +148,25 @@ public class MainActivity extends Activity {
 
 				if (paused == 1) {
 					mPlayer.start();
-					playbackButton.setText(getResources().getString(
+					mPlaybackButton.setText(getResources().getString(
 							R.string.pause));
 					v.setTag(0); // pause
 				} else {
 					mPlayer.pause();
-					playbackButton.setText(getResources().getString(
+					mPlaybackButton.setText(getResources().getString(
 							R.string.play));
 					v.setTag(1); // play
 				}
 			}
 		});
 
-		stopButton.setOnClickListener(new OnClickListener() {
+		mStopButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				stopPlayer();
 			}
 		});
 
-		fastButton.setOnClickListener(new OnClickListener() {
+		mFastButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				songMode = 1;
 				if (playingSongMode != songMode && mPlayer.isPlaying()) {
@@ -161,7 +176,7 @@ public class MainActivity extends Activity {
 			}
 		});
 
-		slowButton.setOnClickListener(new OnClickListener() {
+		mSlowButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				songMode = 0;
 				if (playingSongMode != songMode && mPlayer.isPlaying()) {
@@ -211,6 +226,23 @@ public class MainActivity extends Activity {
 		//
 		// }
 		// });
+
+		mMakr = new MAKr(this);
+		mMakr.addListener(new MAKErListener() {
+
+			private boolean previous;
+
+			@Override
+			public void onRawDataReceived(byte[] buffer, int size) {
+
+			}
+
+			@Override
+			public void onCommandReceived(String cmd, String value) {
+				Log.d(TAG, "received: " + cmd);
+			}
+		});
+		mMakr.start();
 	}
 
 	@Override
