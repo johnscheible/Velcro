@@ -239,7 +239,7 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onCommandReceived(String cmd, String value) {
-				Log.d(TAG, "received: " + cmd);
+				Log.d(TAG, "received: " + cmd + "::" + value);
 			}
 		});
 		mMakr.start();
