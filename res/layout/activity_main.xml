@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    tools:context="com.mwm.velcro.MainActivity" >
 
     <TextView
         android:id="@+id/song_count"
@@ -25,26 +25,50 @@
         android:padding="@dimen/activity_horizontal_margin"
         android:text="@string/heartbeat_monitor_detected"
         android:textSize="20sp" />
-
-    <Button
-        android:id="@+id/music_button"
-        android:layout_width="192dp"
-        android:layout_height="48dp"
-        android:text="@string/play" />
-
-    <!--
-         <Button
-        android:id="@+id/analyze_button"
-        android:layout_width="192dp"
-        android:layout_height="48dp"
-        android:text="@string/analyze" />
-    -->
-
-    <LinearLayout
-        android:id="@+id/status_area"
+    
+    <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" >
-    </LinearLayout>
+        android:layout_height="wrap_content" >
+
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/fast_button"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:text="@string/fast" />
+
+            <Button
+                android:id="@+id/slow_button"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_weight="0.99"
+                android:text="@string/slow" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/playback_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_weight="0.99"
+                android:text="@string/play" />
+
+            <Button
+                android:id="@+id/stop_button"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_weight="0.99"
+                android:text="@string/stop" />
+        </TableRow>
+    </TableLayout>
 
 </LinearLayout>
