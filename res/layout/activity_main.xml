@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/activity_horizontal_margin"
-        android:text="Number of Songs Loaded: "
+        android:text="@string/number_of_songs_loaded"
         android:textSize="20sp" />
 
     <TextView
@@ -23,14 +23,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/activity_horizontal_margin"
-        android:text="Heartbeat Monitor Detected: "
+        android:text="@string/heartbeat_monitor_detected"
         android:textSize="20sp" />
 
     <Button
         android:id="@+id/start_button"
         android:layout_width="192dp"
         android:layout_height="48dp"
-        android:text="Start" />
+        android:text="@string/start" />
 
     <LinearLayout
         android:id="@+id/status_area"
