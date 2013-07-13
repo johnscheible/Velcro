@@ -6,6 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="number_of_songs_loaded">"Number of Songs Loaded: "</string>
     <string name="heartbeat_monitor_detected">"Heartbeat Monitor Detected: "</string>
-    <string name="start">Start</string>
+    <string name="play">Play</string>
 
 </resources>

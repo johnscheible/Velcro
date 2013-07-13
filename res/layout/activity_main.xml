@@ -27,10 +27,10 @@
         android:textSize="20sp" />
 
     <Button
-        android:id="@+id/start_button"
+        android:id="@+id/music_button"
         android:layout_width="192dp"
         android:layout_height="48dp"
-        android:text="@string/start" />
+        android:text="@string/play" />
 
     <LinearLayout
         android:id="@+id/status_area"
