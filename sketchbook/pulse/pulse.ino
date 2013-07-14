@@ -47,7 +47,7 @@ void loop() {
  
   getPulse();
   
-  Serial.println("ALSKDJFKLJASFJKL");
+  //Serial.println("ALSKDJFKLJASFJKL");
   
   delay(1);                  
 }

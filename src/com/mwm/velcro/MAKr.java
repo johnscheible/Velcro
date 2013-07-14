@@ -96,10 +96,12 @@ public class MAKr {
 								public void run() {
 
 									receivedData = new String(buffer, 0, size);
-									String[] data = receivedData.split("::");
 
-									if (data.length > 1) {
+									if (receivedData.contains("::") && !receivedData.endsWith("::")) {
+										String[] data = receivedData.split("::");
 										l.onCommandReceived(data[0], data[1]);
+									} else {
+										Log.d(TAG, "RAW: " + receivedData);
 									}
 								}
 							});
