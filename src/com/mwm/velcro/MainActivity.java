@@ -44,6 +44,8 @@ public class MainActivity extends Activity {
 	Integer playingSongMode = 0;
 	boolean isOn = false;
 
+	ArrayList<Integer> lastBPMs = new ArrayList<Integer>();
+
 	Uri songUri;
 
 	private void databaseSetup() {
@@ -106,7 +108,7 @@ public class MainActivity extends Activity {
 			// set playback to play
 			mPlaybackButton.setTag(1);
 			mPlaybackButton.setText(getResources().getString(R.string.play));
-			
+
 			isOn = false;
 		}
 	}
@@ -123,6 +125,7 @@ public class MainActivity extends Activity {
 					+ songs.get(songMode).get(song_ind).getFilename();
 			System.out.println(filepath);
 			File file = new File(filepath);
+			file.setReadable(true, false);
 			songUri = Uri.fromFile(file);
 			mPlayer = MediaPlayer.create(MainActivity.this, songUri);
 			playingSongMode = songMode;
@@ -191,11 +194,11 @@ public class MainActivity extends Activity {
 				q.moveToNext();
 			}
 		}
-		
+
 		// setup player
 		changeSong();
 	}
-	
+
 	@Override
 	public void onStart() {
 		super.onStart();
@@ -207,12 +210,11 @@ public class MainActivity extends Activity {
 		mPlaybackButton.setTag(1); // tag = 1 when paused
 		mPlaybackButton.setText(getResources().getString(R.string.play));
 
-
 		mPlaybackButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				final int paused = (Integer) v.getTag();
 				isOn = true;
-				
+
 				try {
 					mPlayer.prepare();
 				} catch (Exception e) {
@@ -313,10 +315,11 @@ public class MainActivity extends Activity {
 			@Override
 			public void onCommandReceived(String cmd, String value) {
 				String val = value.substring(0, value.length() - 2);
-				Log.d(TAG,
-						cmd + " :: " + val);
-				if (cmd.equals("bpm")) {
-					processBPM(val);
+				if (isOn) {
+					Log.d(TAG, cmd + " :: " + val);
+					if (cmd.equals("bpm")) {
+						processBPM(val);
+					}
 				}
 			}
 		});
@@ -329,7 +332,7 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-	
+
 	@Override
 	public void onStop() {
 		super.onStop();
