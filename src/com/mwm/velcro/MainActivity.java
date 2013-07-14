@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
 	Integer totalSongs = 0;
 	Integer songMode = 0; // slow = 0, fast = 1
 	Integer playingSongMode = 0;
+	boolean isOn = false;
 
 	Uri songUri;
 
@@ -105,6 +106,8 @@ public class MainActivity extends Activity {
 			// set playback to play
 			mPlaybackButton.setTag(1);
 			mPlaybackButton.setText(getResources().getString(R.string.play));
+			
+			isOn = false;
 		}
 	}
 
@@ -137,7 +140,7 @@ public class MainActivity extends Activity {
 
 		Log.d(TAG, bpm.toString() + " " + ((songMode == 0) ? "SLOW" : "FAST"));
 
-		if (playingSongMode != songMode) { // switch songs
+		if (playingSongMode != songMode && isOn) { // switch songs
 			stopPlayer();
 			changeSong();
 
@@ -145,6 +148,7 @@ public class MainActivity extends Activity {
 			mPlayer.start();
 			mPlaybackButton.setText(getResources().getString(R.string.pause));
 			mPlaybackButton.setTag(0);
+			isOn = true;
 		}
 	}
 
@@ -202,6 +206,8 @@ public class MainActivity extends Activity {
 		mPlaybackButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				final int paused = (Integer) v.getTag();
+				isOn = true;
+				
 				try {
 					mPlayer.prepare();
 				} catch (Exception e) {
