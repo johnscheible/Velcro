@@ -1,6 +1,11 @@
 package com.mwm.velcro;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -21,7 +26,6 @@ import android.widget.TextView;
 import com.mwm.velcro.MAKr.MAKErListener;
 
 public class MainActivity extends Activity {
-	@SuppressWarnings("unused")
 	private static final String TAG = "Velcro";
 
 	private MediaPlayer mPlayer;
@@ -41,6 +45,54 @@ public class MainActivity extends Activity {
 	Integer playingSongMode = 0;
 
 	Uri songUri;
+
+	private void databaseSetup() {
+		String db_fn = getFilesDir().getPath() + "/velcro.sqlite";
+		/*
+		 * /* copy database to data folder see
+		 * http://stackoverflow.com/a/14379635
+		 */
+		// Open your local db as the input stream
+		InputStream myInput = null;
+		try {
+			myInput = getApplicationContext().getAssets().open("velcro.sqlite");
+		} catch (IOException e2) {
+			e2.printStackTrace();
+		}
+		// Open the empty db as the output stream
+		OutputStream myOutput = null;
+		try {
+			myOutput = new FileOutputStream(db_fn);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		// transfer bytes from the inputfile to the outputfile
+		byte[] buffer = new byte[1024];
+		int length;
+		try {
+			while ((length = myInput.read(buffer)) > 0) {
+				myOutput.write(buffer, 0, length);
+			}
+			// Close the streams
+			myOutput.flush();
+			myOutput.close();
+			myInput.close();
+		} catch (Exception e) {
+		}
+
+		// setup db
+		try {
+			mDb = SQLiteDatabase.openDatabase(db_fn, null, 0);
+		} catch (SQLiteException e) {
+			System.out.println(e.toString());
+			Log.d(TAG, "Failed to open song database");
+		} catch (NullPointerException e) {
+			System.out.println(e.toString() + "; " + db_fn);
+			Log.d(TAG, "Failed to open song database");
+		}
+
+	}
 
 	private void stopPlayer() {
 		if (mPlayer.isPlaying()) {
@@ -82,18 +134,7 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		String db_fn = "/data/data/com.mwm.velcro/velcro.sqlite";
-
-		// setup db
-		try {
-			mDb = SQLiteDatabase.openDatabase(db_fn, null, 0);
-		} catch (SQLiteException e) {
-			System.out.println(e.toString());
-			Log.d(TAG, "Failed to open song database");
-		} catch (NullPointerException e) {
-			System.out.println(e.toString() + "; " + db_fn);
-			Log.d(TAG, "Failed to open song database");
-		}
+		databaseSetup();
 
 		songs.add(0, new ArrayList<Song>()); // slow songs
 		songs.add(1, new ArrayList<Song>()); // fast songs
@@ -102,6 +143,8 @@ public class MainActivity extends Activity {
 		 * Categorize songs based on BPM. fast: BPM >= 120; slow: BPM < 120
 		 */
 		if (mDb != null) {
+			Log.d(TAG, "Reading DB...");
+
 			Cursor q = mDb.query("songs", null, null, null, null, null, null);
 			// Update number of songs loaded
 			totalSongs = q.getCount();
@@ -143,9 +186,9 @@ public class MainActivity extends Activity {
 				try {
 					mPlayer.prepare();
 				} catch (Exception e) {
+					Log.d(TAG, songUri.toString());
 					e.printStackTrace();
 				}
-
 				if (paused == 1) {
 					mPlayer.start();
 					mPlaybackButton.setText(getResources().getString(
@@ -230,7 +273,7 @@ public class MainActivity extends Activity {
 		mMakr = new MAKr(this);
 		mMakr.addListener(new MAKErListener() {
 
-			private boolean previous;
+			// private boolean previous;
 
 			@Override
 			public void onRawDataReceived(byte[] buffer, int size) {

@@ -97,8 +97,10 @@ public class MAKr {
 
 									receivedData = new String(buffer, 0, size);
 									String[] data = receivedData.split("::");
-									
-									l.onCommandReceived(data[0], data[1]);
+
+									if (data.length > 1) {
+										l.onCommandReceived(data[0], data[1]);
+									}
 								}
 							});
 
@@ -199,14 +201,14 @@ public class MAKr {
 	}
 
 	public void resume() {
-		if (isStarted ) { 
-			start();		
+		if (isStarted) {
+			start();
 		}
 	}
-	
+
 	public void pause() {
-		if (isStarted ) { 
-			stop();		
+		if (isStarted) {
+			stop();
 		}
 	}
 
