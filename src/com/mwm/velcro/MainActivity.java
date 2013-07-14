@@ -1,7 +1,6 @@
 package com.mwm.velcro;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -64,7 +63,6 @@ public class MainActivity extends Activity {
 		try {
 			myOutput = new FileOutputStream(db_fn);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		// transfer bytes from the inputfile to the outputfile
@@ -101,7 +99,6 @@ public class MainActivity extends Activity {
 			try {
 				mPlayer.setDataSource(MainActivity.this, songUri);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return;
 			}
@@ -126,6 +123,28 @@ public class MainActivity extends Activity {
 			songUri = Uri.fromFile(file);
 			mPlayer = MediaPlayer.create(MainActivity.this, songUri);
 			playingSongMode = songMode;
+		}
+	}
+
+	private void processBPM(String value) {
+		Integer bpm = Integer.parseInt(value);
+
+		if (bpm < 75) { // slow BPM
+			songMode = 0;
+		} else { // fast BPM
+			songMode = 1;
+		}
+
+		Log.d(TAG, bpm.toString() + " " + ((songMode == 0) ? "SLOW" : "FAST"));
+
+		if (playingSongMode != songMode) { // switch songs
+			stopPlayer();
+			changeSong();
+
+			// play music
+			mPlayer.start();
+			mPlaybackButton.setText(getResources().getString(R.string.pause));
+			mPlaybackButton.setTag(0);
 		}
 	}
 
@@ -282,7 +301,12 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onCommandReceived(String cmd, String value) {
-				Log.d(TAG, "received: " + cmd + "::" + value);
+				String val = value.substring(0, value.length() - 2);
+				Log.d(TAG,
+						cmd + " :: " + val);
+				if (cmd.equals("bpm")) {
+					processBPM(val);
+				}
 			}
 		});
 		mMakr.start();
