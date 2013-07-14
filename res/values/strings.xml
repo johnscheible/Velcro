@@ -8,7 +8,7 @@
     <string name="heartbeat_monitor_detected">"Heartbeat Monitor Detected: "</string>
     <string name="play">Play</string>
     <string name="analyze">Analyze Track</string>
-    <string name="slow">Slow</string><string name="fast">Fast</string>
+	<string name="now_playing">"Now Playing: "</string>
     <string name="pause">Pause</string><string name="stop">Stop</string>
     
 </resources>

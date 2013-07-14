@@ -25,33 +25,21 @@
         android:padding="@dimen/activity_horizontal_margin"
         android:text="@string/heartbeat_monitor_detected"
         android:textSize="20sp" />
-    
+
+    <TextView
+        android:id="@+id/now_playing"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_horizontal_margin"
+        android:text="@string/now_playing"
+        android:textSize="16sp" />
+
     <TableLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
         <TableRow
             android:id="@+id/tableRow1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <Button
-                android:id="@+id/fast_button"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_weight="1"
-                android:text="@string/fast" />
-
-            <Button
-                android:id="@+id/slow_button"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_weight="0.99"
-                android:text="@string/slow" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/tableRow2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 

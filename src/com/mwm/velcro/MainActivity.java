@@ -35,7 +35,7 @@ public class MainActivity extends Activity {
 	private Random mRandomGenerator = new Random();
 	private MAKr mMakr;
 
-	private Button mPlaybackButton, mStopButton, mFastButton, mSlowButton;
+	private Button mPlaybackButton, mStopButton;
 
 	final String rootDir = android.os.Environment.getExternalStorageDirectory()
 			.getAbsolutePath();
@@ -124,14 +124,18 @@ public class MainActivity extends Activity {
 			return;
 		} else {
 			int song_ind = mRandomGenerator.nextInt(songs.get(songMode).size());
-			String filepath = musicDir
-					+ songs.get(songMode).get(song_ind).getFilename();
+			String fn = songs.get(songMode).get(song_ind).getFilename();
+			String filepath = musicDir + fn;
 			System.out.println(filepath);
 			File file = new File(filepath);
 			file.setReadable(true, false);
 			songUri = Uri.fromFile(file);
 			mPlayer = MediaPlayer.create(MainActivity.this, songUri);
 			playingSongMode = songMode;
+			
+			// update now playing
+			final TextView np = (TextView) findViewById(R.id.now_playing);
+			np.setText(getResources().getString(R.string.now_playing) + "\n" + fn);
 		}
 	}
 
@@ -165,7 +169,9 @@ public class MainActivity extends Activity {
 			songMode = 1;
 		}
 
-		if (playingSongMode != songMode && isOn) { // switch songs
+		// switch songs if playing (not paused!)
+		if (playingSongMode != songMode && isOn
+				&& (Integer) mPlaybackButton.getTag() == 0) {
 			stopPlayer();
 			changeSong();
 
@@ -227,8 +233,6 @@ public class MainActivity extends Activity {
 		// setup interface
 		mPlaybackButton = (Button) findViewById(R.id.playback_button);
 		mStopButton = (Button) findViewById(R.id.stop_button);
-		mFastButton = (Button) findViewById(R.id.fast_button);
-		mSlowButton = (Button) findViewById(R.id.slow_button);
 		mPlaybackButton.setTag(1); // tag = 1 when paused
 		mPlaybackButton.setText(getResources().getString(R.string.play));
 
@@ -260,26 +264,6 @@ public class MainActivity extends Activity {
 		mStopButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				stopPlayer();
-			}
-		});
-
-		mFastButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				songMode = 1;
-				if (playingSongMode != songMode && mPlayer.isPlaying()) {
-					stopPlayer();
-					changeSong();
-				}
-			}
-		});
-
-		mSlowButton.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				songMode = 0;
-				if (playingSongMode != songMode && mPlayer.isPlaying()) {
-					stopPlayer();
-					changeSong();
-				}
 			}
 		});
 
