@@ -28,7 +28,7 @@
  */
 
 int pulsePin = A0;    // select the input pin for the potentiometer
-//int blinkPin = 13;                // pin to blink led at each beat
+int blinkPin = 13;                // pin to blink led at each beat
 int Signal = 0;  // variable to store the value coming from the sensor
 //int fadePin = 5;                  // pin to do fancy classy fading blink at each beat
 //int fadeRate = 0;                 // used to fade LED on with PWM on fadePin
