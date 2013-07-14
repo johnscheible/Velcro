@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 
 import android.app.Activity;
@@ -26,6 +27,8 @@ import com.mwm.velcro.MAKr.MAKErListener;
 
 public class MainActivity extends Activity {
 	private static final String TAG = "Velcro";
+	private static final Integer NUM_BPMS = 4;
+	private static final Integer BPM_THRES = 75;
 
 	private MediaPlayer mPlayer;
 	private SQLiteDatabase mDb;
@@ -132,10 +135,31 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	private void processBPM(String value) {
-		Integer bpm = Integer.parseInt(value);
+	private boolean modeChanged() {
+		Iterator<Integer> it = lastBPMs.iterator();
+		while (it.hasNext()) {
+			Integer bpm = it.next();
 
-		if (bpm < 75) { // slow BPM
+			/*
+			 * if we are currently in slow mode and not all of the last NUM_BPMS
+			 * are fast, or if we are in fast mode and not all of them are slow,
+			 * then we shouldn't change the mode.
+			 */
+			if ((songMode == 0 && bpm <= BPM_THRES)
+					|| (songMode == 1 && bpm > BPM_THRES)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void processBPM(Integer bpm) {
+		// only change mode if the last NUM_BPMS polls have shown change
+		if (!modeChanged()) {
+			return;
+		}
+
+		if (bpm < BPM_THRES) { // slow BPM
 			songMode = 0;
 		} else { // fast BPM
 			songMode = 1;
@@ -314,9 +338,17 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onCommandReceived(String cmd, String value) {
-				String val = value.substring(0, value.length() - 2);
-				if (isOn) {
-					Log.d(TAG, cmd + " :: " + val);
+				Integer val = Integer.parseInt(value.substring(0,
+						value.length() - 2));
+				if (isOn && val < 160) { // ignore bpms too high
+					Log.d(TAG, cmd + " :: " + val.toString());
+
+					// keep track of BPM stack
+					lastBPMs.add(val);
+					if (lastBPMs.size() > NUM_BPMS) {
+						lastBPMs.remove(0);
+					}
+
 					if (cmd.equals("bpm")) {
 						processBPM(val);
 					}
@@ -336,7 +368,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onStop() {
 		super.onStop();
-		stopPlayer();
+		// stopPlayer();
 	}
 
 }
