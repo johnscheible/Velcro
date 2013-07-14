@@ -13,14 +13,17 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mwm.velcro.MAKr.MAKErListener;
@@ -29,6 +32,10 @@ public class MainActivity extends Activity {
 	private static final String TAG = "Velcro";
 	private static final Integer NUM_BPMS = 4;
 	private static final Integer BPM_THRES = 75;
+
+	private final Handler bgh = new Handler();
+	private Runnable run = null;
+	private LinearLayout bg = null;
 
 	private MediaPlayer mPlayer;
 	private SQLiteDatabase mDb;
@@ -132,10 +139,11 @@ public class MainActivity extends Activity {
 			songUri = Uri.fromFile(file);
 			mPlayer = MediaPlayer.create(MainActivity.this, songUri);
 			playingSongMode = songMode;
-			
+
 			// update now playing
 			final TextView np = (TextView) findViewById(R.id.now_playing);
-			np.setText(getResources().getString(R.string.now_playing) + "\n" + fn);
+			np.setText(getResources().getString(R.string.now_playing) + "\n"
+					+ fn);
 		}
 	}
 
@@ -188,6 +196,8 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		bg = (LinearLayout) findViewById(R.id.background);
+
 		databaseSetup();
 
 		songs.add(0, new ArrayList<Song>()); // slow songs
@@ -225,6 +235,36 @@ public class MainActivity extends Activity {
 
 		// setup player
 		changeSong();
+
+		run = new Runnable() {
+			Integer bpms = 1000;
+			Integer bpm = 60;
+			Integer heartbeat = 100;
+			Integer count = 0;
+
+			@Override
+			public void run() {
+
+				try {
+					bpm = lastBPMs.get(lastBPMs.size() - 1);
+				} catch (ArrayIndexOutOfBoundsException e) {
+				}
+				bpms = 60000 / bpm;
+				if (count % 2 == 0) {
+					// background
+					bg.setBackgroundColor(Color.WHITE);
+					bgh.postDelayed(this, bpms);
+				} else {
+					// pulse
+					bg.setBackgroundColor(0xFFFFC0C0);
+					bgh.postDelayed(this, heartbeat);
+				}
+
+				count++;
+			}
+		};
+
+		bgh.postDelayed(run, 0);
 	}
 
 	@Override
@@ -244,7 +284,6 @@ public class MainActivity extends Activity {
 				try {
 					mPlayer.prepare();
 				} catch (Exception e) {
-					Log.d(TAG, songUri.toString());
 					e.printStackTrace();
 				}
 				if (paused == 1) {
