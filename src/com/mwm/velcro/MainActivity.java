@@ -13,7 +13,6 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,19 +22,18 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mwm.velcro.MAKr.MAKErListener;
 
 public class MainActivity extends Activity {
 	private static final String TAG = "Velcro";
-	private static final Integer NUM_BPMS = 4;
+	private static final Integer NUM_BPMS = 5;
 	private static final Integer BPM_THRES = 75;
 
 	private final Handler bgh = new Handler();
 	private Runnable run = null;
-	private LinearLayout bg = null;
 
 	private MediaPlayer mPlayer;
 	private SQLiteDatabase mDb;
@@ -141,6 +139,7 @@ public class MainActivity extends Activity {
 			playingSongMode = songMode;
 
 			// update now playing
+
 			final TextView np = (TextView) findViewById(R.id.now_playing);
 			np.setText(getResources().getString(R.string.now_playing) + "\n"
 					+ fn);
@@ -196,8 +195,6 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		bg = (LinearLayout) findViewById(R.id.background);
-
 		databaseSetup();
 
 		songs.add(0, new ArrayList<Song>()); // slow songs
@@ -212,10 +209,12 @@ public class MainActivity extends Activity {
 			Cursor q = mDb.query("songs", null, null, null, null, null, null);
 			// Update number of songs loaded
 			totalSongs = q.getCount();
-			final TextView songsLoaded = (TextView) findViewById(R.id.song_count);
-			songsLoaded.setText(getResources().getString(
-					R.string.number_of_songs_loaded)
-					+ " " + totalSongs.toString());
+			/*
+			 * final TextView songsLoaded = (TextView)
+			 * findViewById(R.id.song_count);
+			 * songsLoaded.setText(getResources().getString(
+			 * R.string.number_of_songs_loaded) + " " + totalSongs.toString());
+			 */
 			// load songs into ArrayList
 			q.moveToFirst();
 			while (q.isAfterLast() == false) {
@@ -241,6 +240,7 @@ public class MainActivity extends Activity {
 			Integer bpm = 60;
 			Integer heartbeat = 100;
 			Integer count = 0;
+			ImageView logo = (ImageView) findViewById(R.id.logo);
 
 			@Override
 			public void run() {
@@ -252,11 +252,11 @@ public class MainActivity extends Activity {
 				bpms = 60000 / bpm;
 				if (count % 2 == 0) {
 					// background
-					bg.setBackgroundColor(Color.WHITE);
+					logo.setImageResource(R.drawable.focuslogoheartless);
 					bgh.postDelayed(this, bpms);
 				} else {
 					// pulse
-					bg.setBackgroundColor(0xFFFFC0C0);
+					logo.setImageResource(R.drawable.focuslogoheart);
 					bgh.postDelayed(this, heartbeat);
 				}
 
@@ -362,7 +362,9 @@ public class MainActivity extends Activity {
 				Integer val = Integer.parseInt(value.substring(0,
 						value.length() - 2));
 				if (isOn && val < 160) { // ignore bpms too high
-					Log.d(TAG, cmd + " :: " + val.toString());
+					final TextView bpmText = (TextView) findViewById(R.id.heartbeat_status);
+					bpmText.setText(getResources().getString(R.string.bpm)
+							+ val);
 
 					// keep track of BPM stack
 					lastBPMs.add(val);

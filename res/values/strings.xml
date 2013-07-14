@@ -4,7 +4,7 @@
     <string name="app_name">Focus</string>
     <string name="action_settings">Settings</string>
     <string name="number_of_songs_loaded">"Number of Songs Loaded: "</string>
-    <string name="heartbeat_monitor_detected">"Heartbeat Monitor Detected: "</string>
+    <string name="bpm">"BPM: "</string>
     <string name="play">Play</string>
     <string name="analyze">Analyze Track</string>
     <string name="now_playing">"Now Playing: "</string>
