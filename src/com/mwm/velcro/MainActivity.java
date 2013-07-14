@@ -165,8 +165,6 @@ public class MainActivity extends Activity {
 			songMode = 1;
 		}
 
-		Log.d(TAG, bpm.toString() + " " + ((songMode == 0) ? "SLOW" : "FAST"));
-
 		if (playingSongMode != songMode && isOn) { // switch songs
 			stopPlayer();
 			changeSong();
