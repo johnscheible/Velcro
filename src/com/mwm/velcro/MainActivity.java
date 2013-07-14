@@ -191,7 +191,14 @@ public class MainActivity extends Activity {
 				q.moveToNext();
 			}
 		}
-
+		
+		// setup player
+		changeSong();
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
 		// setup interface
 		mPlaybackButton = (Button) findViewById(R.id.playback_button);
 		mStopButton = (Button) findViewById(R.id.stop_button);
@@ -200,8 +207,6 @@ public class MainActivity extends Activity {
 		mPlaybackButton.setTag(1); // tag = 1 when paused
 		mPlaybackButton.setText(getResources().getString(R.string.play));
 
-		// setup player
-		changeSong();
 
 		mPlaybackButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -323,6 +328,12 @@ public class MainActivity extends Activity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		stopPlayer();
 	}
 
 }
